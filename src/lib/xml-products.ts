@@ -114,21 +114,26 @@ function toProduct(raw: RawXmlProduct, index: number): Product {
 }
 
 export async function fetchProductsFromXml(): Promise<Product[]> {
-  const response = await fetch(DEFAULT_XML_URL, { cache: 'no-store' });
+  try {
+    const response = await fetch(DEFAULT_XML_URL, { cache: 'no-store' });
 
-  if (!response.ok) {
-    throw new Error(`XML product feed request failed with status ${response.status}`);
-  }
+    if (!response.ok) {
+      throw new Error(`XML product feed request failed with status ${response.status}`);
+    }
 
-  const xmlData = await response.text();
-  const sanitizedXml = sanitizeXml(xmlData);
-  const parser = new Parser({ explicitArray: true, strict: false });
-  const parsed = await parser.parseStringPromise(sanitizedXml);
+    const xmlData = await response.text();
+    const sanitizedXml = sanitizeXml(xmlData);
+    const parser = new Parser({ explicitArray: true, strict: false });
+    const parsed = await parser.parseStringPromise(sanitizedXml);
 
-  const rawProducts = parsed?.urunler?.urun;
-  if (!Array.isArray(rawProducts)) {
+    const rawProducts = parsed?.urunler?.urun;
+    if (!Array.isArray(rawProducts)) {
+      return [];
+    }
+
+    return rawProducts.map((urun, index) => toProduct(urun as RawXmlProduct, index));
+  } catch (error) {
+    console.error('Failed to fetch products from XML feed:', error);
     return [];
   }
-
-  return rawProducts.map((urun, index) => toProduct(urun as RawXmlProduct, index));
 }

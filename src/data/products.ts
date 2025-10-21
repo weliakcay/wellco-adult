@@ -1,11 +1,19 @@
 import { unstable_cache } from 'next/cache';
 import type { Product } from '@/types';
 import { fetchProductsFromXml } from '@/lib/xml-products';
+import fallbackProductsData from './products.json';
+
+const FALLBACK_PRODUCTS: Product[] = fallbackProductsData.products.map((product) => ({
+  ...product,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}));
 
 const cachedFetchProducts = unstable_cache(
   async (): Promise<Product[]> => {
     const products = await fetchProductsFromXml();
-    return products.filter((product) => product.isActive);
+    const source = products.length > 0 ? products : FALLBACK_PRODUCTS;
+    return source.filter((product) => product.isActive);
   },
   ['wellco-products-xml'],
   {
