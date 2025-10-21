@@ -1,86 +1,80 @@
-import { Product } from '@/types';
-import productsData from './products.json';
+import { unstable_cache } from 'next/cache';
+import type { Product } from '@/types';
+import { fetchProductsFromXml } from '@/lib/xml-products';
 
-// JSON'dan gelen ürünleri Product tipine dönüştür
-export const ALL_PRODUCTS: Product[] = productsData.products.map(p => ({
-  ...p,
-  createdAt: new Date(),
-  updatedAt: new Date()
-}));
+const cachedFetchProducts = unstable_cache(
+  async (): Promise<Product[]> => {
+    const products = await fetchProductsFromXml();
+    return products.filter((product) => product.isActive);
+  },
+  ['wellco-products-xml'],
+  {
+    revalidate: Number(process.env.PRODUCTS_REVALIDATE_SECONDS ?? 3600),
+  }
+);
 
-// Tüm kategorileri al
-export const getAllCategories = (): string[] => {
+export async function getAllProducts(): Promise<Product[]> {
+  return cachedFetchProducts();
+}
+
+export async function getAllCategories(): Promise<string[]> {
+  const products = await getAllProducts();
   const categories = new Set<string>();
-  ALL_PRODUCTS.forEach(product => {
-    product.categories.forEach(cat => categories.add(cat));
-  });
-  return Array.from(categories).sort();
-};
 
-// Kategori bazlı filtreleme
-export const filterProductsByCategory = (category?: string): Product[] => {
-  if (!category) return ALL_PRODUCTS;
-  return ALL_PRODUCTS.filter(p => p.categories.includes(category));
-};
-
-// Fiyat aralığına göre filtreleme
-export const filterProductsByPrice = (min: number, max: number): Product[] => {
-  return ALL_PRODUCTS.filter(p => p.price >= min && p.price <= max);
-};
-
-// Arama
-export const searchProducts = (query: string): Product[] => {
-  const lowerQuery = query.toLowerCase();
-  return ALL_PRODUCTS.filter(p =>
-    p.title.toLowerCase().includes(lowerQuery) ||
-    p.description.toLowerCase().includes(lowerQuery) ||
-    p.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
-  );
-};
-
-// SKU ile ürün bul
-export const getProductBySku = (sku: string): Product | undefined => {
-  return ALL_PRODUCTS.find(p => p.sku === sku);
-};
-
-// ID ile ürün bul
-export const getProductById = (id: string): Product | undefined => {
-  return ALL_PRODUCTS.find(p => p.id === id);
-};
-
-// Aktif ürünleri getir
-export const getActiveProducts = (): Product[] => {
-  return ALL_PRODUCTS.filter(p => p.isActive && p.stock > 0);
-};
-
-// Kategoriye göre ürün sayısı
-export const getProductCountByCategory = (): Record<string, number> => {
-  const counts: Record<string, number> = {};
-  ALL_PRODUCTS.forEach(product => {
-    product.categories.forEach(cat => {
-      counts[cat] = (counts[cat] || 0) + 1;
+  products.forEach((product) => {
+    product.categories.forEach((category) => {
+      if (category) {
+        categories.add(category);
+      }
     });
   });
-  return counts;
-};
 
-// Öne çıkan ürünler (Hareketli Vibratörler kategorisinden)
-export const getFeaturedProducts = (limit: number = 8): Product[] => {
-  return ALL_PRODUCTS
-    .filter(p =>
-      p.isActive &&
-      p.stock > 0 &&
-      p.categories.includes('Hareketli Vibratörler')
+  return Array.from(categories).sort((a, b) => a.localeCompare(b, 'tr'));
+}
+
+export async function getProductCountByCategory(): Promise<Record<string, number>> {
+  const products = await getAllProducts();
+  const counts: Record<string, number> = {};
+
+  products.forEach((product) => {
+    product.categories.forEach((category) => {
+      if (!category) return;
+      counts[category] = (counts[category] || 0) + 1;
+    });
+  });
+
+  return counts;
+}
+
+export async function getProductById(id: string): Promise<Product | undefined> {
+  const products = await getAllProducts();
+  return products.find((product) => product.id === id);
+}
+
+export async function getProductBySku(sku: string): Promise<Product | undefined> {
+  const products = await getAllProducts();
+  return products.find((product) => product.sku === sku);
+}
+
+export async function getFeaturedProducts(limit: number = 8): Promise<Product[]> {
+  const products = await getAllProducts();
+  return products
+    .filter(
+      (product) =>
+        product.stock > 0 && product.tags.includes('premium') && product.categories.length > 0
     )
     .slice(0, limit);
-};
+}
 
-// İndirimli ürünler
-export const getDiscountedProducts = (): Product[] => {
-  return ALL_PRODUCTS.filter(p =>
-    p.isActive &&
-    p.stock > 0 &&
-    p.compareAtPrice &&
-    p.compareAtPrice > p.price
-  );
-};
+export async function searchProducts(query: string): Promise<Product[]> {
+  const products = await getAllProducts();
+  const normalized = query.toLowerCase();
+
+  return products.filter((product) => {
+    return (
+      product.title.toLowerCase().includes(normalized) ||
+      product.description.toLowerCase().includes(normalized) ||
+      product.tags.some((tag) => tag.toLowerCase().includes(normalized))
+    );
+  });
+}

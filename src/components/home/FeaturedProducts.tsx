@@ -4,9 +4,8 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { getFeaturedProducts } from '@/data/products';
 import { ArrowRight } from 'lucide-react';
 
-export function FeaturedProducts() {
-  // Get 6 featured products (premium tagged and in stock)
-  const featuredProducts = getFeaturedProducts(6);
+export async function FeaturedProducts() {
+  const featuredProducts = await getFeaturedProducts(6);
 
   return (
     <section className="py-20 md:py-32 bg-wellco-neutral relative overflow-hidden">

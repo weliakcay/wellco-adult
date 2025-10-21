@@ -1,20 +1,41 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
+import { FaInstagram, FaTiktok, FaXTwitter, FaLinkedinIn } from 'react-icons/fa6';
 
 const marketplaces = [
   {
     name: 'Trendyol',
     logo: '/marketplaces/trendyol.png',
     url: 'https://www.trendyol.com/magaza/wellcoadult-m-1182111?sst=0&channelId=1&event=0',
-    description: 'Trendyol\'da alışveriş yapın',
   },
   {
     name: 'Hepsiburada',
     logo: '/marketplaces/hepsiburada.png',
     url: 'https://www.hepsiburada.com/magaza/wellcoadult',
-    description: 'Hepsiburada\'da alışveriş yapın',
+  },
+];
+
+const socialMedia = [
+  {
+    name: 'Instagram',
+    icon: FaInstagram,
+    url: 'https://www.instagram.com/wellco.adult/',
+  },
+  {
+    name: 'TikTok',
+    icon: FaTiktok,
+    url: 'https://www.tiktok.com/@wellcoadult?lang=tr-TR',
+  },
+  {
+    name: 'X (Twitter)',
+    icon: FaXTwitter,
+    url: 'https://x.com/WellcoAdult',
+  },
+  {
+    name: 'LinkedIn',
+    icon: FaLinkedinIn,
+    url: 'https://www.linkedin.com/company/wellco-adult/?viewAsMember=true',
   },
 ];
 
@@ -38,7 +59,7 @@ export function Marketplaces() {
         </div>
 
         {/* Marketplace Logos */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid gap-12 sm:grid-cols-2 justify-items-center items-center max-w-4xl mx-auto">
           {marketplaces.map((marketplace) => (
             <Link
               key={marketplace.name}
@@ -47,36 +68,51 @@ export function Marketplaces() {
               rel="noopener noreferrer"
               className="group"
             >
-              <Card className="relative overflow-hidden border-wellco-primary/10 bg-white hover:border-wellco-accent-vibrant/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                {/* Hover Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-wellco-accent-vibrant/0 to-wellco-accent-magenta/0 group-hover:from-wellco-accent-vibrant/5 group-hover:to-wellco-accent-magenta/5 transition-all duration-300" />
-
-                {/* Content */}
-                <div className="relative p-8 flex flex-col items-center justify-center space-y-4">
-                  {/* Logo Container */}
-                  <div className="relative w-full h-24 flex items-center justify-center">
+              <Card className="relative bg-transparent border-none shadow-none p-0 hover:scale-[1.03] transition-transform duration-300">
+                <div className="flex flex-col items-center justify-center gap-6">
+                  <div className="relative w-[28rem] max-w-[90vw] h-48 sm:h-56">
                     <Image
                       src={marketplace.logo}
                       alt={marketplace.name}
-                      width={300}
-                      height={80}
-                      className="object-contain max-h-20 group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="(max-width: 768px) 90vw, 28rem"
+                      className="object-contain"
                       priority
                     />
                   </div>
-
-                  {/* Description & Icon */}
-                  <div className="flex items-center gap-2 text-wellco-primary group-hover:text-wellco-accent-vibrant transition-colors">
-                    <span className="text-sm font-medium">{marketplace.description}</span>
-                    <ExternalLink className="h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </div>
+                  {/* Only logo displayed */}
                 </div>
-
-                {/* Bottom Glow on Hover */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-wellco-accent-vibrant via-wellco-accent-magenta to-wellco-accent-vibrant opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Card>
             </Link>
           ))}
+        </div>
+
+        {/* Social Media */}
+        <div className="mt-20 text-center space-y-6">
+          <h3 className="text-2xl md:text-3xl font-serif font-light text-wellco-text-dark">
+            Sosyal Medyada{' '}
+            <span className="font-serif italic text-wellco-primary">Bizi Takip Edin</span>
+          </h3>
+          <p className="text-base text-wellco-text-dark/70 max-w-lg mx-auto">
+            Güncel kampanyalar ve wellness içerikleri için sosyal medya profillerimize göz atın
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-6">
+            {socialMedia.map(({ name, icon: Icon, url }) => (
+              <Link
+                key={name}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={name}
+                className="group"
+              >
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-wellco-primary/20 bg-white shadow-sm transition-all duration-300 hover:border-wellco-accent-vibrant/40 hover:shadow-lg hover:-translate-y-1">
+                  <Icon className="h-8 w-8 text-wellco-primary transition-colors duration-300 group-hover:text-wellco-accent-vibrant" />
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Bottom Note */}
