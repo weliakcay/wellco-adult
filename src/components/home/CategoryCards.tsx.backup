@@ -1,0 +1,211 @@
+'use client';
+
+import Link from 'next/link';
+import { useState, useRef, MouseEvent } from 'react';
+import { MAIN_CATEGORIES } from '@/constants';
+import { Sparkles, Zap, Heart, Leaf } from 'lucide-react';
+
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Sparkles,
+  Zap,
+  Heart,
+  Leaf,
+};
+
+interface CardState {
+  mouseX: number;
+  mouseY: number;
+  width: number;
+  height: number;
+}
+
+function ParallaxCard({ category, index }: { category: typeof MAIN_CATEGORIES[number], index: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardState, setCardState] = useState<CardState>({
+    mouseX: 0,
+    mouseY: 0,
+    width: 0,
+    height: 0,
+  });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const Icon = iconMap[category.icon];
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left - width / 2;
+    const mouseY = e.clientY - rect.top - height / 2;
+
+    setCardState({ mouseX, mouseY, width, height });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTimeout(() => {
+      setCardState({ mouseX: 0, mouseY: 0, width: 0, height: 0 });
+    }, 1000);
+  };
+
+  const mousePX = cardState.width ? cardState.mouseX / cardState.width : 0;
+  const mousePY = cardState.height ? cardState.mouseY / cardState.height : 0;
+
+  const cardStyle = {
+    transform: isHovered
+      ? `perspective(1000px) rotateY(${mousePX * 30}deg) rotateX(${mousePY * -30}deg)`
+      : 'perspective(1000px) rotateY(0deg) rotateX(0deg)',
+    transition: isHovered ? 'none' : 'transform 1s cubic-bezier(0.445, 0.05, 0.55, 0.95)',
+  };
+
+  const cardBgStyle = {
+    transform: isHovered
+      ? `translateX(${mousePX * -40}px) translateY(${mousePY * -40}px)`
+      : 'translateX(0px) translateY(0px)',
+    transition: isHovered ? 'none' : 'transform 1s cubic-bezier(0.445, 0.05, 0.55, 0.95)',
+    opacity: isHovered ? 0.8 : 0.5,
+  };
+
+  return (
+    <Link
+      href={`/kategoriler/${category.slug}`}
+      className="block"
+      style={{
+        animationDelay: `${index * 100}ms`,
+      }}
+    >
+      <div
+        ref={cardRef}
+        className="card-wrap relative cursor-pointer"
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          transformStyle: 'preserve-3d',
+          perspective: '1000px',
+        }}
+      >
+        <div
+          className="card relative w-60 h-80 bg-wellco-dark-primary overflow-hidden rounded-xl shadow-2xl"
+          style={cardStyle}
+        >
+          {/* Background Image */}
+          <div
+            className="card-bg absolute -top-5 -left-5 w-[calc(100%+40px)] h-[calc(100%+40px)] bg-cover bg-center pointer-events-none"
+            style={{
+              ...cardBgStyle,
+              backgroundImage: `url(${category.image})`,
+            }}
+          />
+
+          {/* Info Overlay */}
+          <div
+            className={`card-info absolute bottom-0 left-0 right-0 p-5 text-white transition-transform duration-600 ${
+              isHovered ? 'translate-y-0' : 'translate-y-[40%]'
+            }`}
+            style={{
+              transition: isHovered
+                ? 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)'
+                : 'transform 0.6s 1.6s cubic-bezier(0.215, 0.61, 0.355, 1)',
+            }}
+          >
+            {/* Gradient Overlay */}
+            <div
+              className={`absolute top-0 left-0 right-0 bottom-0 -z-10 transition-all duration-500 ${
+                isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+              }`}
+              style={{
+                background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%)',
+                transition: isHovered
+                  ? 'opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)'
+                  : 'opacity 5s 1s cubic-bezier(0.215, 0.61, 0.355, 1), transform 5s 1s cubic-bezier(0.215, 0.61, 0.355, 1)',
+              }}
+            />
+
+            {/* Icon */}
+            <div className="relative z-10 mb-2 flex items-center gap-2">
+              {Icon && <Icon className="w-8 h-8 text-wellco-accent-vibrant drop-shadow-lg" />}
+            </div>
+
+            {/* Title */}
+            <h1 className="relative z-10 font-serif text-2xl font-bold mb-2" style={{
+              textShadow: 'rgba(0,0,0,0.5) 0 10px 10px',
+            }}>
+              {category.name}
+            </h1>
+
+            {/* Description */}
+            <p
+              className={`relative z-10 text-sm leading-relaxed transition-opacity duration-600 ${
+                isHovered ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                textShadow: 'rgba(0,0,0,1) 0 2px 3px',
+                transition: isHovered
+                  ? 'opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1)'
+                  : 'opacity 0.6s 1.6s cubic-bezier(0.215, 0.61, 0.355, 1)',
+              }}
+            >
+              {category.description}
+            </p>
+          </div>
+
+          {/* Hover Effects */}
+          {isHovered && (
+            <>
+              {/* White glow */}
+              <div className="absolute inset-0 pointer-events-none" style={{
+                boxShadow: 'rgba(255,255,255,0.2) 0 0 40px 5px, rgba(255,255,255,1) 0 0 0 1px, rgba(0,0,0,0.66) 0 30px 60px 0, inset #333 0 0 0 5px, inset white 0 0 0 6px',
+                borderRadius: '0.75rem',
+              }} />
+            </>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export function CategoryCards() {
+  return (
+    <section className="py-16 md:py-24 bg-gradient-to-br from-wellco-neutral to-wellco-neutral-light">
+      <div className="container mx-auto px-4">
+        {/* Section Header */}
+        <div className="mb-16 text-center space-y-4">
+          <h2 className="text-4xl md:text-5xl font-serif font-light text-wellco-text-dark">
+            Size Uygun Kategoriyi{' '}
+            <span className="font-serif italic text-wellco-primary">Seçin</span>
+          </h2>
+          <p className="mt-4 text-lg text-wellco-text-dark/70 max-w-2xl mx-auto">
+            Kartların üzerine gelin ve parallax efektini deneyimleyin
+          </p>
+          {/* Decorative line */}
+          <div className="flex justify-center pt-2">
+            <div className="h-px w-24 bg-gradient-to-r from-transparent via-wellco-accent-vibrant to-transparent" />
+          </div>
+        </div>
+
+        {/* Category Grid */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 justify-items-center">
+          {MAIN_CATEGORIES.map((category, index) => (
+            <ParallaxCard key={category.id} category={category} index={index} />
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
+          <p className="text-sm text-wellco-text-dark/50 italic">
+            Tüm ürünlerimiz gizli kargo ile güvenle kapınıza teslim edilir
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
