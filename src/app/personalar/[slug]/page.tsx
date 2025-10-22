@@ -181,36 +181,89 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
                 </div>
               </div>
 
-              {/* Right: Quick Chat Preview */}
-              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-wellco-primary to-wellco-accent-vibrant p-6 text-white text-center">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold mb-2">Sohbete Başla</h3>
-                  <p className="text-sm opacity-90">
-                    {persona.type === 'expert'
-                      ? 'AI destekli danışmanlık hizmeti'
-                      : 'Kişisel AI sohbet deneyimi'}
+              {/* Right: Persona Highlights */}
+              <div className="bg-white rounded-2xl shadow-2xl border border-wellco-primary/10 p-8 space-y-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-wellco-primary/10 px-3 py-1 text-xs font-medium text-wellco-primary">
+                    <Sparkles className="h-3 w-3" />
+                    {persona.type === 'expert' ? 'Uzman Destek' : 'AI Deneyimi'}
+                  </div>
+                  <h3 className="text-2xl font-serif text-wellco-text-dark">
+                    Nasıl Bir Deneyim Beklemeli?
+                  </h3>
+                  <p className="text-sm text-wellco-text-dark/70 leading-relaxed">
+                    Görüşme öncesinde hangi konulara değindiğimizi bilmek, sohbetten en yüksek verimi almanızı sağlar.
                   </p>
                 </div>
-                <div className="p-6 space-y-4">
-                  {persona.sampleQuestions && persona.sampleQuestions.length > 0 && (
-                    <>
-                      <div className="text-sm font-medium text-wellco-text-dark mb-2">
-                        Örnek Sorular:
-                      </div>
-                      <div className="space-y-2">
-                        {persona.sampleQuestions.slice(0, 3).map((question, index) => (
-                          <div
-                            key={index}
-                            className="text-sm text-wellco-text-dark/70 bg-wellco-neutral p-3 rounded-lg"
-                          >
-                            &ldquo;{question}&rdquo;
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
+
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-wellco-primary/10 text-wellco-primary">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-wellco-text-dark">
+                        Bilimsel ve etik yaklaşım
+                      </h4>
+                      <p className="text-sm text-wellco-text-dark/70">
+                        Kanıta dayalı içeriklerle güvenli ve yargılamayan bir sohbet deneyimi sunar.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-wellco-accent-vibrant/10 text-wellco-accent-vibrant">
+                      <Heart className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-wellco-text-dark">
+                        Empatik yönlendirme
+                      </h4>
+                      <p className="text-sm text-wellco-text-dark/70">
+                        İçtenlikli, empati odaklı yanıtlar sayesinde rahatça paylaşım yapabilirsiniz.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-wellco-accent-magenta/10 text-wellco-accent-magenta">
+                      <MessageCircle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-wellco-text-dark">
+                        Adım adım rehberlik
+                      </h4>
+                      <p className="text-sm text-wellco-text-dark/70">
+                        Sorularınıza göre net yönlendirmeler ve pratik önerilerle destek alırsınız.
+                      </p>
+                    </div>
+                  </div>
                 </div>
+
+                {persona.sampleQuestions && persona.sampleQuestions.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="text-sm font-semibold text-wellco-text-dark">
+                      En sık gelen sorulardan bazıları:
+                    </div>
+                    <ul className="space-y-2">
+                      {persona.sampleQuestions.slice(0, 3).map((question, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm text-wellco-text-dark/70">
+                          <span className="mt-1 h-2 w-2 rounded-full bg-wellco-primary flex-shrink-0" />
+                          <span>{question}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full bg-wellco-primary hover:bg-wellco-primary/90 text-white"
+                >
+                  <Link href="#persona-chat" className="flex items-center justify-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    Sohbete geç
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -367,7 +420,7 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Right Column: Chat Interface */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1" id="persona-chat">
               <div className="sticky top-24">
                 {persona.aiEnabled ? (
                   <ChatInterface persona={persona} />
