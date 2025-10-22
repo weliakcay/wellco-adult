@@ -1,15 +1,47 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { NAV_LINKS } from '@/constants';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, User, Menu } from 'lucide-react';
+import { ShoppingCart, User, Menu, X } from 'lucide-react';
 
 export function Header() {
   const { totalItems } = useCart();
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, []);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-wellco-primary/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm">
@@ -74,13 +106,72 @@ export function Header() {
             </Button>
 
             {/* Mobile Menu */}
-            <Button variant="ghost" size="icon" className="md:hidden hover:bg-wellco-primary/10">
-              <Menu className="h-5 w-5 text-wellco-text-dark/70" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden hover:bg-wellco-primary/10"
+              onClick={toggleMobileMenu}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="wellco-mobile-menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5 text-wellco-text-dark/70" />
+              ) : (
+                <Menu className="h-5 w-5 text-wellco-text-dark/70" />
+              )}
               <span className="sr-only">Menü</span>
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40">
+          <div
+            className="absolute inset-0 bg-wellco-text-dark/30 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <nav
+            id="wellco-mobile-menu"
+            className="absolute top-0 right-0 h-full w-5/6 max-w-sm bg-white border-l border-wellco-primary/10 shadow-2xl flex flex-col"
+          >
+            <div className="px-6 pt-24 pb-8 space-y-6 overflow-y-auto">
+              <div className="space-y-4">
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block text-lg font-medium text-wellco-text-dark/80 hover:text-wellco-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="border-t border-wellco-primary/10 pt-6 space-y-3">
+                <Link
+                  href="/sepet"
+                  className="flex items-center justify-between text-wellco-text-dark hover:text-wellco-primary transition-colors"
+                >
+                  <span className="font-medium">Sepetim</span>
+                  <span className="text-xs text-wellco-text-dark/50">
+                    {totalItems > 0 ? `${totalItems} ürün` : 'Boş'}
+                  </span>
+                </Link>
+                <Link
+                  href="/hesabim"
+                  className="flex items-center justify-between text-wellco-text-dark hover:text-wellco-primary transition-colors"
+                >
+                  <span className="font-medium">Hesabım</span>
+                  <span className="text-xs text-wellco-text-dark/50">Giriş yap / Üye ol</span>
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

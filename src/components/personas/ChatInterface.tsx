@@ -17,6 +17,9 @@ interface ChatInterfaceProps {
   persona: Persona;
 }
 
+const DR_SEREN_WEBHOOK_URL =
+  'https://weliakcay.app.n8n.cloud/webhook/6c3ea13f-3a57-4dc6-ba4d-805699d9db4a';
+
 export function ChatInterface({ persona }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -31,22 +34,26 @@ export function ChatInterface({ persona }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
-    scrollToBottom();
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    if (!messagesEndRef.current) return;
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages]);
 
   const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    const trimmedMessage = inputValue.trim();
+    if (!trimmedMessage || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue,
+      content: trimmedMessage,
       timestamp: new Date()
     };
 
@@ -54,12 +61,38 @@ export function ChatInterface({ persona }: ChatInterfaceProps) {
     setInputValue('');
     setIsLoading(true);
 
+    if (persona.slug === 'dr-seren-yilmaz') {
+      try {
+        const reply = await requestDrSerenWebhookResponse(trimmedMessage, persona);
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: reply,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiMessage]);
+      } catch (error) {
+        console.error('Dr. Seren webhook error:', error);
+        const errorMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          role: 'assistant',
+          content:
+            'Şu anda yanıt veremiyorum. Lütfen kısa bir süre sonra tekrar deneyin ya da alternatif kanallarımızdan bize ulaşın.',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
     // Simulate AI response (replace with actual API call in production)
     setTimeout(() => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: getSimulatedResponse(inputValue, persona),
+        content: getSimulatedResponse(trimmedMessage, persona),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
@@ -207,6 +240,60 @@ export function ChatInterface({ persona }: ChatInterfaceProps) {
       </div>
     </div>
   );
+}
+
+async function requestDrSerenWebhookResponse(message: string, persona: Persona): Promise<string> {
+  const response = await fetch(DR_SEREN_WEBHOOK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message,
+      persona: persona.slug,
+      name: persona.name
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Webhook request failed: ${response.status} ${errorText}`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    const data = await response.json();
+    const reply =
+      (typeof data.reply === 'string' && data.reply.trim()) ||
+      (typeof data.response === 'string' && data.response.trim()) ||
+      (typeof data.message === 'string' && data.message.trim()) ||
+      (typeof data.output === 'string' && data.output.trim());
+
+    if (reply) {
+      return reply;
+    }
+
+    if (Array.isArray(data)) {
+      const messages = data
+        .map((entry) => {
+          if (typeof entry === 'string') return entry.trim();
+          if (entry && typeof entry.message === 'string') return entry.message.trim();
+          if (entry && typeof entry.text === 'string') return entry.text.trim();
+          if (entry && typeof entry.output === 'string') return entry.output.trim();
+          return '';
+        })
+        .filter(Boolean);
+
+      if (messages.length > 0) {
+        return messages.join('\n\n');
+      }
+    }
+
+    return JSON.stringify(data);
+  }
+
+  const text = (await response.text()).trim();
+  return text || 'Webhook boş yanıt döndürdü.';
 }
 
 // Simulated response function (replace with actual AI API call)
