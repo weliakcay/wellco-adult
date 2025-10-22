@@ -127,7 +127,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40">
+        <div className="md:hidden fixed inset-0 z-[60]">
           <div
             className="absolute inset-0 bg-wellco-text-dark/30 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -135,7 +135,7 @@ export function Header() {
           />
           <nav
             id="wellco-mobile-menu"
-            className="absolute top-0 right-0 h-full w-5/6 max-w-sm bg-white border-l border-wellco-primary/10 shadow-2xl flex flex-col"
+            className="absolute top-0 right-0 h-full w-5/6 max-w-sm bg-white border-l border-wellco-primary/10 shadow-2xl flex flex-col z-[70]"
           >
             <div className="px-6 pt-24 pb-8 space-y-6 overflow-y-auto">
               <div className="space-y-4">
