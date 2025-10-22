@@ -14,6 +14,7 @@ export function Header() {
   const { totalItems } = useCart();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const MOBILE_MENU_TOP = 104; // Top bar (40px) + header (64px)
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -127,46 +128,69 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[60]">
+        <div
+          className="md:hidden fixed inset-x-0 bottom-0 z-[100]"
+          style={{ top: `${MOBILE_MENU_TOP}px` }}
+          role="dialog"
+          aria-modal="true"
+        >
           <div
-            className="absolute inset-0 bg-wellco-text-dark/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-wellco-text-dark/35 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
           <nav
             id="wellco-mobile-menu"
-            className="absolute top-0 right-0 h-full w-5/6 max-w-sm bg-white border-l border-wellco-primary/10 shadow-2xl flex flex-col z-[70]"
+            className="relative z-[110] h-full w-full overflow-hidden rounded-t-3xl border border-wellco-primary/10 bg-white/95 shadow-2xl"
           >
-            <div className="px-6 pt-24 pb-8 space-y-6 overflow-y-auto">
-              <div className="space-y-4">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="block text-lg font-medium text-wellco-text-dark/80 hover:text-wellco-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-wellco-primary/10">
+                <div className="text-sm font-semibold text-wellco-text-dark/70 uppercase tracking-wide">
+                  Menüyü Keşfet
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full bg-wellco-primary/10 text-wellco-primary hover:bg-wellco-primary/20"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Menüyü kapat</span>
+                </Button>
               </div>
 
-              <div className="border-t border-wellco-primary/10 pt-6 space-y-3">
-                <Link
-                  href="/sepet"
-                  className="flex items-center justify-between text-wellco-text-dark hover:text-wellco-primary transition-colors"
-                >
-                  <span className="font-medium">Sepetim</span>
-                  <span className="text-xs text-wellco-text-dark/50">
-                    {totalItems > 0 ? `${totalItems} ürün` : 'Boş'}
-                  </span>
-                </Link>
-                <Link
-                  href="/hesabim"
-                  className="flex items-center justify-between text-wellco-text-dark hover:text-wellco-primary transition-colors"
-                >
-                  <span className="font-medium">Hesabım</span>
-                  <span className="text-xs text-wellco-text-dark/50">Giriş yap / Üye ol</span>
-                </Link>
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+                <div className="space-y-3">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block rounded-xl border border-transparent bg-wellco-neutral/40 px-4 py-3 text-base font-medium text-wellco-text-dark/80 transition-all hover:border-wellco-primary/20 hover:bg-wellco-accent-vibrant/5 hover:text-wellco-primary"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl bg-wellco-primary/5 px-4 py-5 border border-wellco-primary/10 space-y-3">
+                  <div className="text-sm font-semibold text-wellco-primary">Hızlı erişim</div>
+                  <Link
+                    href="/sepet"
+                    className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
+                  >
+                    <span className="font-medium">Sepetim</span>
+                    <span className="text-xs text-wellco-text-dark/50">
+                      {totalItems > 0 ? `${totalItems} ürün` : 'Boş'}
+                    </span>
+                  </Link>
+                  <Link
+                    href="/hesabim"
+                    className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
+                  >
+                    <span className="font-medium">Hesabım</span>
+                    <span className="text-xs text-wellco-text-dark/50">Giriş yap / Üye ol</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </nav>
