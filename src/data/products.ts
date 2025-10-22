@@ -66,12 +66,14 @@ export async function getProductBySku(sku: string): Promise<Product | undefined>
 
 export async function getFeaturedProducts(limit: number = 8): Promise<Product[]> {
   const products = await getAllProducts();
-  return products
-    .filter(
-      (product) =>
-        product.stock > 0 && product.tags.includes('premium') && product.categories.length > 0
-    )
-    .slice(0, limit);
+  const filtered = products.filter(
+    (product) =>
+      product.stock > 0 &&
+      product.categories.includes('Klitoris Vibratörler') &&
+      product.isActive
+  );
+
+  return filtered.slice(0, limit);
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
