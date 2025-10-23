@@ -127,68 +127,74 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] flex flex-col" role="dialog" aria-modal="true">
+        <>
           <div
-            className="absolute inset-0 bg-wellco-text-dark/35 backdrop-blur-sm"
+            className="fixed inset-0 z-[95] bg-wellco-text-dark/35 backdrop-blur-sm md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
-
           <nav
             id="wellco-mobile-menu"
-            className="relative z-[110] mx-4 mb-6 mt-[104px] overflow-hidden rounded-3xl border border-wellco-primary/10 bg-white shadow-xl"
-            style={{ maxHeight: 'calc(100vh - 140px)' }}
+            className="fixed inset-x-0 top-[104px] z-[110] mx-4 md:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobil navigasyon"
           >
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-wellco-primary/10">
-              <div className="text-sm font-semibold text-wellco-text-dark/70 uppercase tracking-wide">
-                Menüyü Keşfet
+            <div
+              className="overflow-hidden rounded-3xl border border-wellco-primary/10 bg-white shadow-xl"
+              style={{ maxHeight: 'calc(100vh - 130px)' }}
+            >
+              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-wellco-primary/10">
+                <div className="text-sm font-semibold text-wellco-text-dark/70 uppercase tracking-wide">
+                  Menüyü Keşfet
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full bg-wellco-primary/10 text-wellco-primary hover:bg-wellco-primary/20"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Menüyü kapat</span>
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-full bg-wellco-primary/10 text-wellco-primary hover:bg-wellco-primary/20"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Menüyü kapat</span>
-              </Button>
-            </div>
 
-            <div className="max-h-[calc(100vh-208px)] overflow-y-auto px-6 py-6 space-y-8">
-              <div className="space-y-3">
-                {NAV_LINKS.map((link) => (
+              <div className="max-h-[calc(100vh-210px)] overflow-y-auto px-6 py-6 space-y-8">
+                <div className="space-y-3">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block rounded-xl border border-transparent bg-wellco-neutral/40 px-4 py-3 text-base font-medium text-wellco-text-dark/80 transition-all hover:border-wellco-primary/20 hover:bg-wellco-accent-vibrant/5 hover:text-wellco-primary"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl bg-wellco-primary/5 px-4 py-5 border border-wellco-primary/10 space-y-3">
+                  <div className="text-sm font-semibold text-wellco-primary">Hızlı erişim</div>
                   <Link
-                    key={link.href}
-                    href={link.href}
-                    className="block rounded-xl border border-transparent bg-wellco-neutral/40 px-4 py-3 text-base font-medium text-wellco-text-dark/80 transition-all hover:border-wellco-primary/20 hover:bg-wellco-accent-vibrant/5 hover:text-wellco-primary"
+                    href="/sepet"
+                    className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
                   >
-                    {link.name}
+                    <span className="font-medium">Sepetim</span>
+                    <span className="text-xs text-wellco-text-dark/50">
+                      {totalItems > 0 ? `${totalItems} ürün` : 'Boş'}
+                    </span>
                   </Link>
-                ))}
-              </div>
-
-              <div className="rounded-2xl bg-wellco-primary/5 px-4 py-5 border border-wellco-primary/10 space-y-3">
-                <div className="text-sm font-semibold text-wellco-primary">Hızlı erişim</div>
-                <Link
-                  href="/sepet"
-                  className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
-                >
-                  <span className="font-medium">Sepetim</span>
-                  <span className="text-xs text-wellco-text-dark/50">
-                    {totalItems > 0 ? `${totalItems} ürün` : 'Boş'}
-                  </span>
-                </Link>
-                <Link
-                  href="/hesabim"
-                  className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
-                >
-                  <span className="font-medium">Hesabım</span>
-                  <span className="text-xs text-wellco-text-dark/50">Giriş yap / Üye ol</span>
-                </Link>
+                  <Link
+                    href="/hesabim"
+                    className="flex items-center justify-between text-sm text-wellco-text-dark/70 hover:text-wellco-primary transition-colors"
+                  >
+                    <span className="font-medium">Hesabım</span>
+                    <span className="text-xs text-wellco-text-dark/50">Giriş yap / Üye ol</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </nav>
-        </div>
+        </>
       )}
     </header>
   );
