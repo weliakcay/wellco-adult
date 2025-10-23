@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { ExpertCard } from '@/components/personas/ExpertCard';
 import { DollCard } from '@/components/personas/DollCard';
 import { Button } from '@/components/ui/button';
@@ -15,12 +16,24 @@ import {
 import { Search, Users, MessageCircle, Heart, Sparkles } from 'lucide-react';
 
 export default function PersonalarPage() {
+  const searchParams = useSearchParams();
+  const initialView = searchParams.get('view');
+  const initialTab: 'all' | 'experts' | 'dolls' =
+    initialView === 'experts' || initialView === 'dolls' ? initialView : 'all';
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'dolls'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'dolls'>(initialTab);
 
   const experts = getExperts();
   const dolls = getDolls();
   const stats = getPersonaStats();
+
+  useEffect(() => {
+    const view = searchParams.get('view');
+    if (view === 'experts' || view === 'dolls') {
+      setActiveTab(view);
+    }
+  }, [searchParams]);
 
   const filteredExperts = searchQuery
     ? searchPersonas(searchQuery).filter(p => p.type === 'expert')
@@ -153,7 +166,7 @@ export default function PersonalarPage() {
 
       {/* Experts Section */}
       {showExperts && filteredExperts.length > 0 && (
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white" id="personas-experts">
           <div className="container mx-auto px-4">
             <div className="mb-12 flex items-center justify-between">
               <h2 className="text-3xl md:text-4xl font-serif font-light text-wellco-text-dark">
@@ -177,7 +190,10 @@ export default function PersonalarPage() {
 
       {/* Dolls Section - Adult X Collaboration */}
       {showDolls && filteredDolls.length > 0 && (
-        <section className="py-16 bg-gradient-to-br from-wellco-accent-magenta/5 via-wellco-background to-wellco-accent-vibrant/5 relative overflow-hidden">
+        <section
+          className="py-16 bg-gradient-to-br from-wellco-accent-magenta/5 via-wellco-background to-wellco-accent-vibrant/5 relative overflow-hidden"
+          id="personas-dolls"
+        >
           {/* Background decoration */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-10 right-10 w-64 h-64 bg-wellco-accent-magenta rounded-full blur-3xl" />

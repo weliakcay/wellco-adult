@@ -1,4 +1,4 @@
-import { HeroSection, CategoryCards, TrustBadges, Marketplaces, BlogPreview } from '@/components/home';
+import { HeroSection, CategoryCards, TrustBadges, Marketplaces, PersonasSpotlight } from '@/components/home';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 
 export default function Home() {
@@ -8,9 +8,8 @@ export default function Home() {
       <CategoryCards />
       <FeaturedProducts />
       <TrustBadges />
+      <PersonasSpotlight />
       <Marketplaces />
-      {/* TransitionBand geçici olarak kaldırıldı - daha iyi bir örnek bulunacak */}
-      <BlogPreview />
     </>
   );
 }
