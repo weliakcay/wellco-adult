@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { ExpertCard } from '@/components/personas/ExpertCard';
@@ -15,14 +15,11 @@ import {
 } from '@/data/personas';
 import { Search, Users, MessageCircle, Heart, Sparkles } from 'lucide-react';
 
-export default function PersonalarPage() {
+function PersonalarPageContent() {
   const searchParams = useSearchParams();
-  const initialView = searchParams.get('view');
-  const initialTab: 'all' | 'experts' | 'dolls' =
-    initialView === 'experts' || initialView === 'dolls' ? initialView : 'all';
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'dolls'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'dolls'>('all');
 
   const experts = getExperts();
   const dolls = getDolls();
@@ -314,5 +311,13 @@ export default function PersonalarPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function PersonalarPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-wellco-background" />}>
+      <PersonalarPageContent />
+    </Suspense>
   );
 }
