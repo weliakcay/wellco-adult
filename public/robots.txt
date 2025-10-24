@@ -1,0 +1,13 @@
+# robots.txt for wellcoadult.com
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /sepet
+Disallow: /odeme
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://wellcoadult.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

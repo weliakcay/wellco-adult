@@ -25,14 +25,47 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: `${SITE_CONFIG.name} - ${SITE_CONFIG.slogan}`,
+  metadataBase: new URL('https://wellcoadult.com'),
+  title: {
+    default: `${SITE_CONFIG.name} - ${SITE_CONFIG.slogan}`,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
   description: SITE_CONFIG.description,
-  keywords: ['sexual wellness', 'cinsel sağlık', 'yetişkin ürünleri', 'sağlık', 'mutluluk'],
+  keywords: ['sexual wellness', 'cinsel sağlık', 'yetişkin ürünleri', 'sağlık', 'mutluluk', 'vibratör', 'cinsel terapi', 'wellness'],
+  authors: [{ name: 'Wellco Adult' }],
+  creator: 'Wellco Adult',
+  publisher: 'Wellco Adult',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     title: SITE_CONFIG.name,
     description: SITE_CONFIG.description,
     type: 'website',
     locale: 'tr_TR',
+    url: 'https://wellcoadult.com',
+    siteName: SITE_CONFIG.name,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'verification_token', // Google Search Console'dan alınacak
   },
 };
 
