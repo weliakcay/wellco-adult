@@ -8,27 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
 
 const AGE_VERIFICATION_KEY = 'wellco_age_verified';
-const VERIFICATION_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
 export function AgeVerification() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user has already verified their age
-    const verifiedData = localStorage.getItem(AGE_VERIFICATION_KEY);
+    // Check if user has already verified their age in this session
+    const verifiedData = sessionStorage.getItem(AGE_VERIFICATION_KEY);
 
     if (verifiedData) {
-      try {
-        const { timestamp } = JSON.parse(verifiedData);
-        const now = Date.now();
-
-        // Check if verification is still valid (within 30 days)
-        if (now - timestamp < VERIFICATION_DURATION) {
-          return; // Already verified and still valid
-        }
-      } catch (error) {
-        console.warn('Invalid age verification data detected.', error);
-      }
+      return; // Already verified in this browser session
     }
 
     // Show modal after a short delay for better UX
@@ -38,12 +27,8 @@ export function AgeVerification() {
   }, []);
 
   const handleAccept = () => {
-    // Store verification with timestamp
-    const verificationData = {
-      verified: true,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(AGE_VERIFICATION_KEY, JSON.stringify(verificationData));
+    // Store verification in session storage (cleared when browser closes)
+    sessionStorage.setItem(AGE_VERIFICATION_KEY, 'true');
     setOpen(false);
   };
 
@@ -106,7 +91,7 @@ export function AgeVerification() {
 
         <div className="mt-4 text-center">
           <p className="text-xs text-muted-foreground">
-            Bu doğrulama 30 gün boyunca geçerlidir.
+            Bu doğrulama tarayıcı oturumunuz boyunca geçerlidir.
           </p>
         </div>
       </DialogContent>

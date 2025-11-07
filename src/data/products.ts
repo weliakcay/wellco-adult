@@ -1,28 +1,36 @@
-import { unstable_cache } from 'next/cache';
 import type { Product } from '@/types';
 import { fetchProductsFromXml } from '@/lib/xml-products';
-import fallbackProductsData from './products.json';
 
-const FALLBACK_PRODUCTS: Product[] = fallbackProductsData.products.map((product) => ({
-  ...product,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-}));
-
-const cachedFetchProducts = unstable_cache(
-  async (): Promise<Product[]> => {
-    const products = await fetchProductsFromXml();
-    const source = products.length > 0 ? products : FALLBACK_PRODUCTS;
-    return source.filter((product) => product.isActive);
-  },
-  ['wellco-products-xml'],
-  {
-    revalidate: Number(process.env.PRODUCTS_REVALIDATE_SECONDS ?? 3600),
-  }
-);
+// In-memory cache with timestamp
+let cachedProducts: Product[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = Number(process.env.PRODUCTS_REVALIDATE_SECONDS ?? 3600) * 1000; // Convert to milliseconds
 
 export async function getAllProducts(): Promise<Product[]> {
-  return cachedFetchProducts();
+  const now = Date.now();
+
+  // Return cached products if still valid
+  if (cachedProducts && (now - cacheTimestamp) < CACHE_DURATION) {
+    return cachedProducts;
+  }
+
+  // Fetch fresh products from XML
+  try {
+    const products = await fetchProductsFromXml();
+    if (products.length > 0) {
+      cachedProducts = products.filter((product) => product.isActive);
+      cacheTimestamp = now;
+      return cachedProducts;
+    }
+
+    // If no products from XML, return empty array or cached products
+    console.warn('No products fetched from XML');
+    return cachedProducts || [];
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    // Return cached products if available, otherwise empty array
+    return cachedProducts || [];
+  }
 }
 
 export async function getAllCategories(): Promise<string[]> {

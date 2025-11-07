@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NAV_LINKS } from '@/constants';
 import { useCart } from '@/contexts/CartContext';
+import { UserMenu } from './UserMenu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, User, Menu, X } from 'lucide-react';
+import { ShoppingCart, Menu, X } from 'lucide-react';
 
 export function Header() {
   const { totalItems } = useCart();
@@ -84,13 +85,8 @@ export function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
-            {/* User Icon */}
-            <Button variant="ghost" size="icon" className="hover:bg-wellco-primary/10" asChild>
-              <Link href="/hesabim">
-                <User className="h-5 w-5 text-wellco-text-dark/70 hover:text-wellco-primary" />
-                <span className="sr-only">Hesabım</span>
-              </Link>
-            </Button>
+            {/* User Menu */}
+            <UserMenu />
 
             {/* Cart */}
             <Button variant="ghost" size="icon" className="hover:bg-wellco-primary/10 relative" asChild>

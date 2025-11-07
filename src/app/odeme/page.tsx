@@ -1,19 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, CreditCard, Lock, Package, MapPin, User } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     // Kişisel Bilgiler
     firstName: '',
     lastName: '',
-    email: '',
+    email: user?.email || '',
     phone: '',
 
     // Teslimat Adresi
@@ -28,15 +36,31 @@ export default function CheckoutPage() {
     expiryDate: '',
     cvv: '',
 
-    // Fatura
-    sameAsShipping: true,
-    billingAddress: '',
-
     // Notlar
     orderNotes: ''
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState('');
+
+  // Sepet boşsa yönlendir
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/sepet');
+    }
+  }, [items, router]);
+
+  // Kullanıcı bilgilerini doldur
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || '',
+        firstName: user.user_metadata?.name?.split(' ')[0] || '',
+        lastName: user.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -47,21 +71,101 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsProcessing(true);
 
-    // Ödeme işlemi simülasyonu - gerçek ödeme gateway'i entegre edilecek
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // Sipariş bilgilerini hazırla
+      const orderData = {
+        user_id: user?.id || null,
+        items: items.map(item => ({
+          productId: item.id,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.images[0] || '',
+        })),
+        total: subtotal,
+        status: 'pending',
+        payment_status: 'pending',
+        shipping_address: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          district: formData.district,
+          postalCode: formData.postalCode,
+        },
+        billing_address: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          district: formData.district,
+          postalCode: formData.postalCode,
+        },
+        payment_method: 'credit_card',
+        notes: formData.orderNotes || null,
+      };
 
-    // Başarılı ödeme sonrası yönlendirme
-    window.location.href = '/siparis-basarili';
+      // Supabase'e sipariş kaydet
+      console.log('Sipariş verisi gönderiliyor:', orderData);
+      const { data, error: orderError } = await supabase
+        .from('orders')
+        .insert([orderData])
+        .select()
+        .single();
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      // Analytics event kaydet
+      await supabase.from('analytics_events').insert([
+        {
+          event_type: 'purchase',
+          user_id: user?.id || null,
+          metadata: {
+            order_id: data.id,
+            total: subtotal,
+            items_count: items.length,
+          },
+        },
+      ]);
+
+      // Sepeti temizle
+      clearCart();
+
+      // Başarı sayfasına yönlendir
+      router.push(`/siparis-basarili?order=${data.id}`);
+    } catch (err: any) {
+      console.error('Sipariş hatası:', err);
+      console.error('Hata detayları:', {
+        message: err?.message,
+        details: err?.details,
+        hint: err?.hint,
+        code: err?.code,
+      });
+      setError(
+        `Sipariş oluşturulurken bir hata oluştu: ${err?.message || 'Bilinmeyen hata'}. Lütfen tekrar deneyin.`
+      );
+      setIsProcessing(false);
+    }
   };
 
-  // Geçici sepet verisi
   const cartSummary = {
-    subtotal: 759.80,
+    subtotal: subtotal,
     shipping: 0,
-    total: 759.80
+    total: subtotal
   };
+
+  if (items.length === 0) {
+    return null; // Sepet boşsa yönlendirme yapılacak
+  }
 
   return (
     <div className="min-h-screen bg-wellco-background">
@@ -84,6 +188,14 @@ export default function CheckoutPage() {
 
       <form onSubmit={handleSubmit}>
         <div className="container mx-auto px-4 py-12">
+          {error && (
+            <div className="max-w-7xl mx-auto mb-6">
+              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-800">
+                {error}
+              </div>
+            </div>
+          )}
+
           <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Left Column - Forms */}
             <div className="lg:col-span-2 space-y-6">
@@ -302,8 +414,8 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-                    <p className="font-medium mb-1">⚠️ Test Modu</p>
-                    <p>Ödeme sistemi entegrasyonu devam ediyor. Gerçek kart bilgisi girmeyin.</p>
+                    <p className="font-medium mb-1">⚠️ Demo Modu</p>
+                    <p>Sipariş kaydedilecek ancak ödeme alınmayacaktır. Gerçek kart bilgisi girmeyin.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -319,7 +431,26 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-3">
+                  {/* Ürün Listesi */}
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {items.map((item) => (
+                      <div key={item.id} className="flex gap-3 text-sm">
+                        <div className="flex-1">
+                          <p className="font-medium text-wellco-text-dark line-clamp-1">
+                            {item.title}
+                          </p>
+                          <p className="text-wellco-text-dark/60">
+                            {item.quantity} x {item.price.toFixed(2)} ₺
+                          </p>
+                        </div>
+                        <p className="font-medium text-wellco-text-dark">
+                          {(item.price * item.quantity).toFixed(2)} ₺
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-wellco-primary/10 pt-4 space-y-3">
                     <div className="flex justify-between text-wellco-text-dark/70">
                       <span>Ara Toplam</span>
                       <span>{cartSummary.subtotal.toFixed(2)} ₺</span>
@@ -348,7 +479,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <Lock className="h-5 w-5 mr-2" />
-                        Güvenli Ödeme Yap
+                        Siparişi Tamamla
                       </>
                     )}
                   </Button>

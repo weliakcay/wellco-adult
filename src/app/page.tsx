@@ -1,5 +1,6 @@
 import { HeroSection, CategoryCards, TrustBadges, Marketplaces, PersonasSpotlight } from '@/components/home';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
+import BetaNoticeModal from '@/components/modals/BetaNoticeModal';
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <TrustBadges />
       <PersonasSpotlight />
       <Marketplaces />
+      <BetaNoticeModal />
     </>
   );
 }
