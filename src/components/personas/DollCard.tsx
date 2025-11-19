@@ -140,22 +140,20 @@ export function DollCard({ persona }: DollCardProps) {
             </Button>
           </Link>
 
-          {persona.dollFeatures.productUrl && (
-            <a
-              href={persona.dollFeatures.productUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+          <a
+            href="https://adultx.shop/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="outline"
+              className="w-full border-wellco-accent-magenta/30 text-wellco-accent-magenta hover:bg-wellco-accent-magenta/5"
+              size="sm"
             >
-              <Button
-                variant="outline"
-                className="w-full border-wellco-accent-magenta/30 text-wellco-accent-magenta hover:bg-wellco-accent-magenta/5"
-                size="sm"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Adult X&apos;te Görüntüle
-              </Button>
-            </a>
-          )}
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Adult X&apos;te Görüntüle
+            </Button>
+          </a>
         </div>
       </CardContent>
 

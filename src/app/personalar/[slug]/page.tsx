@@ -368,21 +368,19 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
                         {persona.dollFeatures.price.toLocaleString('tr-TR')} ₺
                       </div>
                     </div>
-                    {persona.dollFeatures.productUrl && (
-                      <a
-                        href={persona.dollFeatures.productUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <a
+                      href="https://adultx.shop/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        size="lg"
+                        className="bg-black hover:bg-black/90 text-white"
                       >
-                        <Button
-                          size="lg"
-                          className="bg-black hover:bg-black/90 text-white"
-                        >
-                          <ExternalLink className="h-5 w-5 mr-2" />
-                          Adult X&apos;te Satın Al
-                        </Button>
-                      </a>
-                    )}
+                        <ExternalLink className="h-5 w-5 mr-2" />
+                        Adult X&apos;te Satın Al
+                      </Button>
+                    </a>
                   </div>
                 </div>
               )}
