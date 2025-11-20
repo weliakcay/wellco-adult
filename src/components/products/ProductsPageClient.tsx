@@ -3,22 +3,26 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { Product } from '@/types';
+import type { Persona } from '@/types/persona';
 import { ProductCard } from '@/components/products/ProductCard';
+import { DollCard } from '@/components/personas/DollCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Heart } from 'lucide-react';
 
 interface ProductsPageClientProps {
   products: Product[];
   categories: string[];
   categoryCounts: Record<string, number>;
+  dolls: Persona[];
 }
 
 export function ProductsPageClient({
   products,
   categories,
   categoryCounts,
+  dolls,
 }: ProductsPageClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -42,6 +46,35 @@ export function ProductsPageClient({
 
   return (
     <div className="min-h-screen bg-wellco-neutral">
+      {/* Premium Dolls Hero Section */}
+      {dolls.length > 0 && (
+        <div id="dolls" className="bg-gradient-to-br from-wellco-accent-magenta/10 via-wellco-accent-vibrant/5 to-wellco-neutral border-b border-wellco-accent-magenta/10">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full bg-wellco-accent-magenta/10 px-4 py-2 text-sm font-medium text-wellco-accent-magenta mb-4">
+                <Heart className="h-4 w-4" />
+                Premium Koleksiyon
+              </div>
+              <h2 className="text-4xl md:text-5xl font-serif font-light text-wellco-text-dark mb-4">
+                Silikon Bebek{' '}
+                <span className="font-serif italic text-wellco-accent-magenta">Karakterleri</span>
+              </h2>
+              <p className="text-base md:text-lg text-wellco-text-dark/70 max-w-2xl mx-auto">
+                Adult X iş birliği ile gelen ultra gerçekçi silikon bebekler. Hikayeleri, özellikleri ve
+                kişisel önerileriyle deneyiminizi zenginleştirin.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+              {dolls.map((doll) => (
+                <DollCard key={doll.id} persona={doll} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Regular Products Header */}
       <div className="bg-gradient-to-br from-wellco-primary/10 to-wellco-secondary/20 border-b border-wellco-primary/10">
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">

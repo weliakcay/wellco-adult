@@ -131,7 +131,7 @@ export function PersonasSpotlight() {
                 size="lg"
                 className="self-start bg-wellco-accent-magenta hover:bg-wellco-accent-magenta/90 text-white"
               >
-                <Link href="/personalar?view=dolls">
+                <Link href="/urunler#dolls">
                   Karakterleri Keşfet
                 </Link>
               </Button>
