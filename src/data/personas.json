@@ -162,7 +162,7 @@
           "Premium ambalaj ve gizli teslimat",
           "2 yıl garanti"
         ],
-        "productUrl": "https://adultx.com/luna-rose-premium"
+        "productUrl": "https://adultx.shop/"
       },
       "aiEnabled": true,
       "aiProvider": "anthropic",
@@ -218,7 +218,7 @@
           "Lüks muhafaza çantası",
           "3 yıl garanti"
         ],
-        "productUrl": "https://adultx.com/scarlett-vogue-elite"
+        "productUrl": "https://adultx.shop/"
       },
       "aiEnabled": true,
       "aiProvider": "openai",
@@ -273,7 +273,7 @@
           "Özel saklama dolabı",
           "2 yıl garanti"
         ],
-        "productUrl": "https://adultx.com/yuki-tanaka-asian"
+        "productUrl": "https://adultx.shop/"
       },
       "aiEnabled": true,
       "aiProvider": "anthropic",
