@@ -5,8 +5,7 @@ const DEFAULT_XML_URL =
   process.env.PRODUCTS_XML_URL ??
   'https://www.erotikshoptoptan.com/xml.php?c=shopphp&xmlc=32587688a7';
 
-const PRICE_MULTIPLIER = Number(process.env.PRODUCT_PRICE_MULTIPLIER ?? 1.5);
-const COMPARE_PRICE_MULTIPLIER = Number(process.env.PRODUCT_COMPARE_MULTIPLIER ?? 1.3);
+const PRICE_ADDITION = Number(process.env.PRODUCT_PRICE_ADDITION ?? 180);
 const USD_TO_TRY_RATE = Number(process.env.PRODUCT_USD_TO_TRY ?? 41.9);
 
 type RawXmlProduct = Record<string, unknown>;
@@ -48,12 +47,12 @@ function collectImages(raw: RawXmlProduct): string[] {
 function parsePrice(raw: RawXmlProduct): number {
   const tlPrice = Number(getFirstValue(raw.urun_fiyat_TL, '0'));
   if (tlPrice > 0) {
-    return tlPrice * PRICE_MULTIPLIER;
+    return tlPrice + PRICE_ADDITION;
   }
 
   const usdPrice = Number(getFirstValue(raw.urun_fiyat, '0'));
   if (usdPrice > 0) {
-    return usdPrice * USD_TO_TRY_RATE * PRICE_MULTIPLIER;
+    return (usdPrice * USD_TO_TRY_RATE) + PRICE_ADDITION;
   }
 
   return 0;
@@ -76,7 +75,7 @@ function toProduct(raw: RawXmlProduct, index: number): Product {
   const descriptionRaw = getFirstValue(raw.urun_aciklama, '').trim();
   const category = getFirstValue(raw.urun_kategori_ad, '').trim();
   const price = parsePrice(raw);
-  const compareAtPrice = price > 0 ? price * COMPARE_PRICE_MULTIPLIER : undefined;
+  const compareAtPrice = undefined; // No discount pricing for now
   const stock = Number(getFirstValue(raw.urun_stok, '0')) || 0;
   const isActive = getFirstValue(raw.urun_aktif, '1') === '1';
 
